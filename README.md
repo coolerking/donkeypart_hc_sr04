@@ -117,19 +117,16 @@ Tubデータとして使用する場合は、`manage.py`の`drive()`内のTubWri
 以下修正例です。
 
 ```python
+    :
     # Tubデータの定義
     inputs = [
         'cam/image_array', 
-        'user/left/value',  'user/left/status', 
-        'user/right/value', 'user/right/status', 
-        'user/lift/value',  'user/lift/status', 
+        'user/angle', 'user/throttle', 
         'range/cms',
         'user/mode',        'timestamp']
     types = [
         'image_array',
-        'float',            'str',
-        'float',            'str', 
-        'float',            'str',
+        'float',            'float',
         'float',
         'str',              'str']
 
@@ -141,6 +138,7 @@ Tubデータとして使用する場合は、`manage.py`の`drive()`内のTubWri
     from donkeycar.parts.datastore import TubWriter
     tub = TubWriter(path=tub_dir, inputs=inputs, types=types)
     V.add(tub, inputs=inputs, run_condition='recording')
+    :
 ```
 
 ## ライセンス
