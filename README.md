@@ -48,16 +48,43 @@ Raspberry Pi を停止状態にして、以下の図の接続例のようにセ�
 
 ### pigpioパッケージのインストール
 
-1. Raspberry Piを起動し、SSH接続する
-2. `sudo apt install -y pigpio` を実行する
-3. `cd ~/`
-4. `git clone http://pandagit.exa-corp.co.jp/git/89004/donkeypart_sonicrangesensor.git` を実行する
-5. `cd donkeypart_sonicrangesensor`
-6. `pip install -e .` を実行する
+#### gpiod の常時起動設定
+
+1. `sudo vi /etc/systemd/system/pigpiod.service`
+   ```ini
+   Description = pigpio daemon
+   
+   [Service]
+   ExecStart = /usr/bin/pigpiod
+   Restart = always
+   Type = forking
+   
+   [Install]
+   WantedBy = multi-user.target
+   ```
+2. `sudo systemctl daemon-reload`
+3. `sudo systemctl enable pigpiod.service`
+4. `sudo reboot`
+
+#### pip パッケージの追加
+
+1. `pip install pigpio`
+
+#### pigpiod の動作状態確認
+
+1. `sudo systemctl status pigpiod`
+
+### 本リポジトリのインストール
+
+1. `git clone https://github.com/coolerking/donkeypart_hc_sr04.git`
+2. `cd donkeypart_hc_sr04`
+3. `pip install -e .`
+
 
 ### config.pyの編集
 
-1. 接続したGPIOピン番号をもとに`config.py`を編集する
+1. `cd ~/mycar`
+2. 接続したGPIOピン番号をもとに`config.py`を編集する
    ```python
    RANGE_TRIG_GPIO = 5
    RANGE_ECHO_GPIO = 6
@@ -82,7 +109,39 @@ Raspberry Pi を停止状態にして、以下の図の接続例のようにセ�
        :
    ```
 
-> Tubデータとして使用する場合は、TubWriterの設定を変更してください。
+### 補足：Tubデータ追加
+
+Tubデータとして使用する場合は、`manage.py`の`drive()`内のTubWriter記述を変更します。
+
+
+以下修正例です。
+
+```python
+    # Tubデータの定義
+    inputs = [
+        'cam/image_array', 
+        'user/left/value',  'user/left/status', 
+        'user/right/value', 'user/right/status', 
+        'user/lift/value',  'user/lift/status', 
+        'range/cms',
+        'user/mode',        'timestamp']
+    types = [
+        'image_array',
+        'float',            'str',
+        'float',            'str', 
+        'float',            'str',
+        'float',
+        'str',              'str']
+
+    # multiple tubs
+    # th = TubHandler(path=cfg.DATA_PATH)
+    # tub = th.new_tub_writer(inputs=inputs, types=types)
+
+    # Tubデータ書き込み
+    from donkeycar.parts.datastore import TubWriter
+    tub = TubWriter(path=tub_dir, inputs=inputs, types=types)
+    V.add(tub, inputs=inputs, run_condition='recording')
+```
 
 ## ライセンス
 
