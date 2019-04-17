@@ -48,6 +48,8 @@ Raspberry Pi を停止状態にして、以下の図の接続例のようにセ�
 
 ### pigpioパッケージのインストール
 
+1. `sudo apt install -y pigpio`
+
 #### pigpiod の常時起動設定
 
 1. `sudo vi /etc/systemd/system/pigpiod.service`
